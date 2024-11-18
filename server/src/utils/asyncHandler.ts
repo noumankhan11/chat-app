@@ -28,9 +28,15 @@ export const asyncHandler = (fn: AsyncHandler) => {
       await fn(req, res, next);
     } catch (error: any) {
       // Handle the error and return a proper response
-      res
-        .status(error.code || 500)
-        .json(new ApiError(500, "something went wrong", error));
+
+      res.status(error.statusCode || 500).json(
+        new ApiError(
+          error.statusCode || 500,
+          "Oops! something went wrong",
+          [error.message], // Populate the errors array
+          error.stack // You can include stack trace for debugging (optional)
+        )
+      );
     }
   };
 };

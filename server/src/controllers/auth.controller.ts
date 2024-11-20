@@ -92,6 +92,6 @@ export const login = asyncHandler(
 );
 
 export const logout = async (req: Request, res: Response) => {
-  res.status(200).json("logout");
-  console.log("logout route");
+  res.cookie("jwt", "", { maxAge: 0 });
+  res.status(200).json(new ApiResponse(200, "Logout Successfully"));
 };

@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import asyncHandler from "../utils/asyncHandler.js";
 import Conversation from "../models/conversation.model.js";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { ObjectId, isValidObjectId } from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import Message from "../models/message.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+//______________ Send Message____________
 export const sendMessage = asyncHandler(
   async (req: Request, res: Response) => {
     const receiverId = req.params.id;
@@ -51,3 +52,36 @@ export const sendMessage = asyncHandler(
       );
   }
 );
+//_________________Get Messages_________________
+export const getMessages = asyncHandler(async (req, res) => {
+  const { id: userToChatId } = req.params;
+  const senderId = req.user?._id;
+
+  //validation checking
+  if (!userToChatId || !senderId) {
+    throw new ApiError(
+      400,
+      "User(sender/receiver) id is not provided"
+    );
+  }
+  if (!isValidObjectId(userToChatId) || !isValidObjectId(senderId)) {
+    throw new ApiError(
+      400,
+      "Invalid user(sender/receiver) object Id"
+    );
+  }
+
+  const conversation = await Conversation.findOne({
+    participants: { $all: [senderId, userToChatId] },
+  }).populate("messages");
+  if (!conversation) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, [], "No messages yet!"));
+  }
+  const messages = conversation.messages;
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, messages, "Operarion succeeded"));
+});

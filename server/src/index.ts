@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import connectDb from "./db/db.js";
 import messageRouter from "./routes/message.routes.js";
+import usersRouter from "./routes/users-routes.js";
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRouter);
+app.use("/api/users", usersRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ msg: "Server is up and running" });

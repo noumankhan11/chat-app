@@ -10,3 +10,36 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
+::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: #555 !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #121212 !important;
+  border-radius: 5px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #242424 !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Adjust the width of the scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #444; /* Background color of the track */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker color on hover */
+}

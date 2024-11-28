@@ -10,9 +10,10 @@ import { ObjectId } from "mongoose";
 //    registering a user
 export const register = asyncHandler(
   async (req: Request, res: Response) => {
-    // try {
+    console.log("register.. the data: ", req.body);
     const { username, fullname, password, confirmPassword, gender } =
       req.body;
+    console.log("register api data:", req.body);
     if (!fullname || !password || !confirmPassword || !gender) {
       throw new ApiError(400, "Please fill in all the fields");
     }

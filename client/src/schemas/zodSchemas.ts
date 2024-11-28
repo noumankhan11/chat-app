@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const FormSchema = z.object({
+export const signupSchema = z.object({
   fullname: z.string().max(20).min(3),
   username: z
     .string()
@@ -16,4 +16,16 @@ export const FormSchema = z.object({
     .string()
     .max(20)
     .min(6, "Password must be atlest 6 characters long!"),
+});
+export const loginSchema = z.object({
+  username: z
+    .string()
+    .max(20)
+    .min(3, "Username must be atleast three characters long!")
+    .regex(/^\S+$/, "Username cannot contain spaces"),
+
+  password: z
+    .string()
+    .max(20)
+    .min(6, "Password must be atleast six characters long!"),
 });

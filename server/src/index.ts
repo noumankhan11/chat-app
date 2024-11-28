@@ -11,10 +11,19 @@ import connectDb from "./db/db.js";
 import messageRouter from "./routes/message.routes.js";
 import usersRouter from "./routes/users-routes.js";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
+
+const corsOptions = {
+  origin: "http://localhost:5173",
+  methods: "GET, POST , PUT ,DELETE, PATCH, HEAD",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(urlencoded({ extended: true }));
 app.use(json());

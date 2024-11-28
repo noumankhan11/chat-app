@@ -5,9 +5,9 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import simulatedApi from "../../api/api";
 import { toast } from "react-toastify";
 import Toast from "../../components/Toast";
-import { FormSchema } from "../../schemas/zodSchemas";
+import { signupSchema } from "../../schemas/zodSchemas";
 
-type FormInputs = z.infer<typeof FormSchema>;
+type FormInputs = z.infer<typeof signupSchema>;
 
 export default function Signup() {
   const {
@@ -16,7 +16,7 @@ export default function Signup() {
     formState: { errors, isSubmitting },
     setError,
   } = useForm<FormInputs>({
-    resolver: zodResolver(FormSchema),
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       fullname: "",
       username: "",
@@ -30,7 +30,7 @@ export default function Signup() {
     console.log("sumitting");
     console.log({ data });
     try {
-      const uri = "https://localhost:3000/api/auth/register";
+      const uri = "http://localhost:3000/api/auth/register";
       const response = await fetch(uri, {
         method: "POST",
         headers: {
@@ -38,7 +38,8 @@ export default function Signup() {
         },
         body: JSON.stringify(data),
       });
-      console.log(response);
+      console.log(await response.json());
+      // console.log(await response.errors[0]);
       toast("Form sumitted");
     } catch (error: any) {
       console.error("Error:", error);
@@ -162,7 +163,7 @@ export default function Signup() {
             <button
               disabled={isSubmitting}
               className="btn btn-block btn-sm mt-2 border border-slate-700">
-              {!isSubmitting ? "Sign Up" : "Submitting"}
+              {!isSubmitting ? "Sign Up" : "Submitting..."}
             </button>
           </div>
         </form>

@@ -1,12 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { loginSchema } from "../../schemas/zodSchemas";
 import * as z from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-toastify";
+import { Bounce, toast } from "react-toastify";
+import { UseAuthContext } from "../../context/AuthContext";
 
+type FormInputs = z.infer<typeof loginSchema>;
 export default function Login() {
-  type FormInputs = z.infer<typeof loginSchema>;
+  const { authUser, setAuthUser } = UseAuthContext();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -22,8 +25,6 @@ export default function Login() {
   });
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
-    console.log("sumitting");
-    console.log({ data });
     try {
       const uri = "http://localhost:3000/api/auth/login";
       const response = await fetch(uri, {
@@ -32,10 +33,52 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        credentials: "include",
       });
-      console.log(response);
-      toast("Form sumitted");
+      const jsonData = await response.json();
+
+      if (!jsonData.success) {
+        toast.error(jsonData.errors[0], {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        return;
+      }
+
+      localStorage.setItem("userInfo", JSON.stringify(jsonData.data));
+      setAuthUser(jsonData.data);
+      toast.success("Successfully Login", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+
+      navigate("/");
     } catch (error: any) {
+      toast.error("Something went wrong", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
       console.error("Error:", error);
       setError("root", {
         type: "manual",

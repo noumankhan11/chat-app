@@ -84,7 +84,8 @@ export const login = asyncHandler(
         {
           username: user.username,
           fullname: user.fullname,
-          gender: user.gender,
+          prfilePic: user.profilePic,
+          _id: user._id,
         },
         "Login Successfully!"
       )

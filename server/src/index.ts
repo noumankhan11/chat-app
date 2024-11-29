@@ -34,6 +34,10 @@ app.use("/api/messages", messageRouter);
 app.use("/api/users", usersRouter);
 
 app.get("/", (req: Request, res: Response) => {
+  console.log(
+    "req.headers.authorization:",
+    req.headers.authorization
+  );
   res.status(200).json({ msg: "Server is up and running" });
 });
 

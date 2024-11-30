@@ -6,14 +6,14 @@ import bcrypt from "bcryptjs";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 import { ObjectId } from "mongoose";
+import uploadToCloudinary from "../lib/cloudinary.js";
 
 //    registering a user
 export const register = asyncHandler(
   async (req: Request, res: Response) => {
-    console.log("register.. the data: ", req.body);
+    // console.log("register.. the data: ", req.body);
     const { username, fullname, password, confirmPassword, gender } =
       req.body;
-    console.log("register api data:", req.body);
     if (!fullname || !password || !confirmPassword || !gender) {
       throw new ApiError(400, "Please fill in all the fields");
     }
@@ -25,6 +25,16 @@ export const register = asyncHandler(
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       throw new ApiError(400, "Username is not availible");
+    }
+    const profileImglocalFile = req.file;
+    console.log(profileImglocalFile);
+    // upload file on cloudinary
+    let uploadResult;
+    if (profileImglocalFile) {
+      uploadResult = await uploadToCloudinary(
+        profileImglocalFile.path
+      );
+      console.log(uploadResult?.url);
     }
     const profilePic = `https://avatar.iran.liara.run/username?username=${username}`;
     // creating a user
@@ -97,3 +107,20 @@ export const logout = async (req: Request, res: Response) => {
   res.cookie("jwt", "", { maxAge: 0 });
   res.status(200).json(new ApiResponse(200, "Logout Successfully"));
 };
+
+export const updateProfile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { profilePic } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    // const uploadResult = uploadToCloudinary(profilePic);
+    // user.profilePic = profilePic;
+    // await user.save();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Profile updated successfully"));
+  }
+);

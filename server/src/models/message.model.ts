@@ -4,7 +4,8 @@ import mongoose, { Document, Schema } from "mongoose";
 interface IMessage extends Document {
   senderId: mongoose.Types.ObjectId;
   receiverId: mongoose.Types.ObjectId;
-  message: string;
+  text: string;
+  image: string;
 }
 
 // Define the message schema
@@ -21,11 +22,15 @@ const messageSchema: Schema<IMessage> = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    message: {
+    text: {
       type: String,
       required: true,
     },
+    image: {
+      type: String,
+    },
   },
+
   { timestamps: true }
 );
 

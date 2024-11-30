@@ -16,7 +16,21 @@ export const signupSchema = z.object({
     .string()
     .max(20)
     .min(6, "Password must be atlest 6 characters long!"),
+  profilePic: z
+    .instanceof(File)
+    .refine(
+      (file) => {
+        const validTypes = ["image/jpeg", "image/png", "image/gif"];
+        return validTypes.includes(file.type);
+      },
+      { message: "Only JPEG, PNG, and GIF files are allowed" }
+    )
+    .refine((file) => file.size <= 2 * 1024 * 1024, {
+      message: "File size must be less than or equal to 2MB",
+    }),
 });
+
+// login Schema
 export const loginSchema = z.object({
   username: z
     .string()

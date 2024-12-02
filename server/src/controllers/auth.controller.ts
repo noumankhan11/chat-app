@@ -27,16 +27,20 @@ export const register = asyncHandler(
       throw new ApiError(400, "Username is not availible");
     }
     const profileImglocalFile = req.file;
-    console.log(profileImglocalFile);
-    // upload file on cloudinary
+
     let uploadResult;
+    let profilePic;
+    // Check if a local file was provided, upload if present
     if (profileImglocalFile) {
       uploadResult = await uploadToCloudinary(
         profileImglocalFile.path
       );
-      console.log(uploadResult?.url);
     }
-    const profilePic = `https://avatar.iran.liara.run/username?username=${username}`;
+    // Use Cloudinary URL if upload was successful, else use default API URL
+    profilePic =
+      uploadResult?.url ||
+      `https://avatar.iran.liara.run/username?username=${username}`;
+
     // creating a user
     const newUser = await User.create({
       username,
@@ -50,7 +54,7 @@ export const register = asyncHandler(
         500,
         "Oops! something went wrong, Couldn't create a user"
       );
-
+    // generate token and send to the client using the method
     generateTokenAndSetCookie(newUser._id as ObjectId, res);
     return res.status(201).json(
       new ApiResponse(
@@ -107,18 +111,46 @@ export const logout = async (req: Request, res: Response) => {
   res.cookie("jwt", "", { maxAge: 0 });
   res.status(200).json(new ApiResponse(200, "Logout Successfully"));
 };
-
+// ______update_fullname_and_profilePic
 export const updateProfile = asyncHandler(
   async (req: Request, res: Response) => {
+    const { newFullname } = req.body;
     const userId = req.user?._id;
-    const { profilePic } = req.body;
+    const profileImglocalFile = req.file;
+
+    // ignore if the user deos not provide both
+    if (!newFullname && !profileImglocalFile) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, "No updates provided"));
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       throw new ApiError(404, "User not found");
     }
-    // const uploadResult = uploadToCloudinary(profilePic);
-    // user.profilePic = profilePic;
-    // await user.save();
+
+    let profilePicUrl;
+    // Check if a local file was provided, upload if present
+
+    if (profileImglocalFile) {
+      try {
+        const uploadResult = await uploadToCloudinary(
+          profileImglocalFile.path
+        );
+        profilePicUrl = uploadResult?.url;
+      } catch (error) {
+        console.error("Error uploading image to Cloudinary:", error);
+        return res
+          .status(500)
+          .json(new ApiResponse(500, "Image upload failed"));
+      }
+    }
+
+    if (newFullname) user.fullname = newFullname;
+    if (profilePicUrl) user.profilePic = profilePicUrl;
+    await user.save();
+
     return res
       .status(200)
       .json(new ApiResponse(200, "Profile updated successfully"));

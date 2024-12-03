@@ -1,5 +1,6 @@
 import express, { NextFunction, Response, Request } from "express";
 import {
+  checkAuth,
   login,
   logout,
   register,
@@ -14,5 +15,6 @@ router.post("/register", upload.single("profilePic"), register);
 router.post("/login", login);
 router.post("/logout", logout);
 router.put("/update-profile", authMiddleware, updateProfile);
+router.get("/check", authMiddleware, checkAuth);
 
 export default router;

@@ -156,3 +156,13 @@ export const updateProfile = asyncHandler(
       .json(new ApiResponse(200, "Profile updated successfully"));
   }
 );
+
+// __checkAuth_Endpoint
+export const checkAuth = asyncHandler(async (req, res) => {
+  const user = req.user;
+  if (!user)
+    return res
+      .status(401)
+      .json(new ApiResponse(401, user, "Unauthorized"));
+  return res.status(200).json(new ApiResponse(200, "Authorized"));
+});

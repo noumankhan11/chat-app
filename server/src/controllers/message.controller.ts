@@ -5,13 +5,20 @@ import mongoose, { ObjectId, isValidObjectId } from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import Message from "../models/message.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import uploadOnCloudinary from "../lib/cloudinary.js";
 
 //______________ Send Message____________
 export const sendMessage = asyncHandler(
   async (req: Request, res: Response) => {
     const receiverId = req.params.id;
     const senderId = req.user?.id;
-    const message = req.body.message;
+    const { message, image } = req.body;
+
+    let imageUrl;
+    if (image) {
+      const uploadResponse = await uploadOnCloudinary(image);
+      imageUrl = uploadResponse?.secure_url;
+    }
 
     if (
       !mongoose.isValidObjectId(senderId) ||
@@ -34,6 +41,7 @@ export const sendMessage = asyncHandler(
       senderId,
       receiverId,
       message,
+      image: imageUrl,
     });
     await newMessage.save();
     // adding message to conversation

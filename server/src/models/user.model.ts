@@ -5,7 +5,6 @@ interface IUser extends Document {
   username: string;
   fullname: string;
   password: string;
-  gender: "male" | "female"; // Corrected typo "femail" to "female"
   profilePic?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -27,11 +26,7 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       required: true,
     },
-    gender: {
-      type: String,
-      required: true,
-      enum: ["male", "female"], // Corrected typo "femail" to "female"
-    },
+
     profilePic: {
       type: String,
       default: "",

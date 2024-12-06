@@ -11,10 +11,9 @@ import uploadToCloudinary from "../lib/cloudinary.js";
 //    registering a user
 export const register = asyncHandler(
   async (req: Request, res: Response) => {
-    // console.log("register.. the data: ", req.body);
-    const { username, fullname, password, confirmPassword, gender } =
+    const { username, fullname, password, confirmPassword } =
       req.body;
-    if (!fullname || !password || !confirmPassword || !gender) {
+    if (!fullname || !password || !confirmPassword) {
       throw new ApiError(400, "Please fill in all the fields");
     }
     // checkeing the confirm password
@@ -45,7 +44,6 @@ export const register = asyncHandler(
     const newUser = await User.create({
       username,
       fullname,
-      gender,
       profilePic,
       password: await bcrypt.hash(password, 10),
     });
@@ -62,7 +60,6 @@ export const register = asyncHandler(
         {
           username: newUser.username,
           fullname: newUser.fullname,
-          gender: newUser.gender,
         },
         "User Created Successfully!"
       )
@@ -78,17 +75,14 @@ export const login = asyncHandler(
     const user = await User.findOne({ username });
 
     if (!user)
-      throw new ApiError(400, "User doesn't exist in the DB");
+      throw new ApiError(400, "Invalid Username or password");
 
     const isValidPassword = await bcrypt.compare(
       password,
       user.password
     );
     if (!isValidPassword) {
-      throw new ApiError(
-        400,
-        "Invalid credentials | Invalid password or Username"
-      );
+      throw new ApiError(400, "Invalid Username or password");
     }
 
     generateTokenAndSetCookie(user.id, res);
@@ -161,8 +155,8 @@ export const updateProfile = asyncHandler(
 export const checkAuth = asyncHandler(async (req, res) => {
   const user = req.user;
   if (!user)
-    return res
-      .status(401)
-      .json(new ApiResponse(401, user, "Unauthorized"));
-  return res.status(200).json(new ApiResponse(200, "Authorized"));
+    return res.status(401).json(new ApiResponse(401, "Unauthorized"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Authorized"));
 });

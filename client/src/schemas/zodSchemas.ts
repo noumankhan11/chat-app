@@ -7,7 +7,7 @@ export const signupSchema = z.object({
     .max(20)
     .min(3)
     .regex(/^\S+$/, "Username cannot contain spaces"),
-  gender: z.enum(["male", "female"]),
+  gender: z.enum(["male", "female"]).optional(),
   password: z
     .string()
     .max(20)
@@ -27,13 +27,16 @@ export const signupSchema = z.object({
     )
     .refine((file) => file.size <= 2 * 1024 * 1024, {
       message: "File size must be less than or equal to 2MB",
-    }),
+    })
+    .optional(),
 });
 
 // login Schema
 export const loginSchema = z.object({
   username: z
-    .string()
+    .string({
+      required_error: "Username is required",
+    })
     .max(20)
     .min(3, "Username must be atleast three characters long!")
     .regex(/^\S+$/, "Username cannot contain spaces"),

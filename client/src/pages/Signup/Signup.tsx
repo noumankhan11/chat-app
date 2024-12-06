@@ -1,21 +1,25 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { toast } from "react-toastify";
-import Toast from "../../components/Toast";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { signupSchema } from "../../schemas/zodSchemas";
+import { BiLock, BiMessageSquare, BiUser } from "react-icons/bi";
+import { cn } from "../../utils/clsx";
+import { FiEyeOff } from "react-icons/fi";
+import { BsEye } from "react-icons/bs";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 type FormInputs = z.infer<typeof signupSchema>;
 
 export default function Signup() {
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
   const {
-    control,
-    setValue,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
   } = useForm<FormInputs>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -29,8 +33,6 @@ export default function Signup() {
   });
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
-    console.log("submitting..");
-    console.log(data);
     try {
       //
       const formData = new FormData();
@@ -38,196 +40,188 @@ export default function Signup() {
       formData.append("username", data.username);
       formData.append("password", data.password);
       formData.append("confirmPassword", data.confirmPassword);
-      formData.append("gender", data.gender);
-      formData.append("profilePic", data.profilePic);
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-      //
+      formData.append("gender", data.gender || "");
+      formData.append("profilePic", data.profilePic || "");
+
+      // api handling
       const uri = "http://localhost:3000/api/auth/register";
       const response = await fetch(uri, {
         method: "POST",
-
         body: formData,
       });
-      console.log(await response.json());
-      // console.log(await response.errors[0]);
-      toast("Form sumitted");
-    } catch (error: any) {
-      console.error("Error:", error);
-      setError("root", {
-        type: "manual",
-        message: error.message,
-      });
-    }
-  };
+      const jsonData = await response.json();
 
-  const handleFileOnchange = (e: any) => {
-    const files = e.target.files; // Get the selected files
-    if (files && files.length > 0) {
-      // Set only the first file if multiple files are selected
-      setValue("profilePic", files[0]);
+      if (!jsonData.success) {
+        toast.error(jsonData.errors[0]);
+        return;
+      }
+      toast.success(
+        "User registerd successfully, Please login to your account"
+      );
+      navigate("/login");
+    } catch (error: any) {
+      toast.error("Something went wrong! Please try again.");
+      console.error("Error:", error);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
-      <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0">
-        <h1 className="text-3xl font-semibold text-center text-gray-300">
-          Sign Up <span className="text-blue-500"> ChatApp</span>
-        </h1>
-        <Toast />
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className="label p-2">
-              <span className="text-base label-text">Full Name</span>
-            </label>
-            <input
-              {...register("fullname")}
-              type="text"
-              placeholder="John Doe"
-              className="w-full input input-bordered h-10"
-            />
-            <p className="error text-sm text-red-500 ">
-              {errors.fullname?.message}{" "}
-            </p>
-          </div>
-          <div>
-            <label className="label p-2 ">
-              <span className="text-base label-text">Username</span>
-            </label>
-            <input
-              {...register("username")}
-              type="text"
-              placeholder="johndoe"
-              className="w-full input input-bordered h-10"
-            />
-            <p className="error text-sm text-red-500 ">
-              {errors.username?.message}{" "}
-            </p>
-          </div>
-          <div>
-            <label className="label">
-              <span className="text-base label-text">Password</span>
-            </label>
-            <input
-              {...register("password")}
-              type="password"
-              placeholder="Enter Password"
-              className="w-full input input-bordered h-10"
-            />
-            <p className="error text-sm text-red-500 ">
-              {errors.password?.message}{" "}
-            </p>
-          </div>
-          <div>
-            <label className="label">
-              <span className="text-base label-text">
-                Confirm Password
-              </span>
-            </label>
-            <input
-              {...register("confirmPassword")}
-              type="password"
-              placeholder="Confirm Password"
-              className="w-full input input-bordered h-10"
-            />
-            <p className="error text-sm text-red-500 ">
-              {errors.confirmPassword?.message}{" "}
-            </p>
-          </div>
-
-          <div>
-            <label className="form-control w-full max-w-xs">
-              {/* <div className="label">
-                <span className="label-text">Profile Image</span>
+    <div className="">
+      {/* Left Side - Form */}
+      <div className="h-screen w-screen flex justify-center items-center ">
+        <div className="max-w-lg w-full space-y-8 bgwhite ">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="flex flex-col items-center gap-2 group">
+              <div
+                className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20
+              transition-colors">
+                <BiMessageSquare className="w-6 h-6 text-primary" />
               </div>
-              <Controller
-                name="profilePic"
-                control={control}
-                render={({
-                  field: { onChange, onBlur, value, ref },
-                }) => (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => {
-                      // Handle file input change
-                      if (
-                        event.target.files &&
-                        event.target.files[0]
-                      ) {
-                        onChange(event.target.files[0]); // Pass the first file
-                      } else {
-                        onChange(null); // Clear the value if no file selected
-                      }
-                    }}
-                    onBlur={onBlur} // Optional: handle blur event
-                    ref={ref} // Registering the ref
-                  />
-                )}
-              /> */}
-              <div className="label">
-                <span className="label-text">Profile Image</span>
-              </div>
-              <input
-                // {...register("profilePic")}
-                type="file"
-                accept="image/*"
-                onChange={handleFileOnchange}
-                className="file-input file-input-bordered w-full max-w-xs"
-              />
-            </label>
-            <p className="error text-sm text-red-500 ">
-              {errors.profilePic?.message}{" "}
-            </p>
-          </div>
-          {/* gender checkbox */}
-          <div className="">
-            <div className="flex">
-              <div className="form-control pb-0">
-                <label className="label gap-2 cursor-pointer pb-0">
-                  <span className="label-text">Male</span>
-                  <input
-                    {...register("gender")}
-                    type="radio"
-                    value="male"
-                    className="radio radio-info border-slate-900"
-                  />
-                </label>
-              </div>
-              <div className="form-control pb-0">
-                <label className="label gap-2 cursor-pointer pb-0">
-                  <span className="label-text">Female</span>
-                  <input
-                    {...register("gender")}
-                    type="radio"
-                    value="female"
-                    className="radio radio-info border-slate-900"
-                  />
-                </label>
-              </div>
-            </div>
-            {errors.gender && (
-              <p className="error text-sm mt text-red-500">
-                Please select your gender
+              <h1 className="text-2xl font-semibold mt-2">
+                Welcome To{" "}
+                <span className="font-bolder font-thin text-3xl">
+                  Me-Chat
+                </span>
+              </h1>
+              <p className="text-base-content/60">
+                Create a new account
               </p>
-            )}
+            </div>
           </div>
-          <Link
-            to={"/login"}
-            className="text-sm hover:underline hover:text-blue-600 mt-2 inline-block">
-            Already have an account?
-          </Link>
-          <div>
+
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-2">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">
+                  User Name
+                </span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <BiUser className="h-5 w-5 text-base-content/40" />
+                </div>
+                <input
+                  type="text"
+                  className={cn(
+                    "input input-bordered w-full pl-10 ",
+                    errors.username?.message &&
+                      "border-red-400 focus:border-red-400"
+                  )}
+                  placeholder="jhon-doe"
+                  {...register("username")}
+                />
+              </div>
+              <p className="text-red-400 pl-1">
+                {errors.username?.message}
+              </p>
+            </div>
+            <div className="form-control mt-0">
+              <label className="label">
+                <span className="label-text font-medium">
+                  Full Name
+                </span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <BiUser className="h-5 w-5 text-base-content/40" />
+                </div>
+                <input
+                  type="text"
+                  className={cn(
+                    "input input-bordered w-full pl-10 ",
+                    errors.fullname?.message &&
+                      "border-red-400 focus:border-red-400"
+                  )}
+                  placeholder="Jhon Doe"
+                  {...register("fullname")}
+                />
+              </div>
+              <p className="text-red-400 pl-1">
+                {errors.fullname?.message}
+              </p>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">
+                  Password
+                </span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <BiLock className="h-5 w-5 text-base-content/40" />
+                </div>
+                <input
+                  className={cn(
+                    "input input-bordered w-full pl-10 ",
+                    errors.password?.message &&
+                      "border-red-400 focus:border-red-400"
+                  )}
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? (
+                    <FiEyeOff className="h-5 w-5 text-base-content/40" />
+                  ) : (
+                    <BsEye className="h-5 w-5 text-base-content/40" />
+                  )}
+                </button>
+              </div>
+              <p className="text-red-400 pl-1">
+                {errors.password?.message}
+              </p>
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">
+                  Confirm Password
+                </span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <BiLock className="h-5 w-5 text-base-content/40" />
+                </div>
+                <input
+                  {...register("confirmPassword")}
+                  className={cn(
+                    "input input-bordered w-full pl-10 ",
+                    errors.confirmPassword?.message &&
+                      "border-red-400 focus:border-red-400"
+                  )}
+                  placeholder="••••••••"
+                />
+              </div>
+              <p className="text-red-400 pl-1">
+                {errors.confirmPassword?.message}
+              </p>
+              <p>{errors.root?.message}</p>
+            </div>
+
             <button
-              disabled={isSubmitting}
-              className="btn btn-block btn-sm mt-2 border border-slate-700">
-              {!isSubmitting ? "Sign Up" : "Submitting..."}
+              className="btn btn-primary w-full"
+              disabled={isSubmitting}>
+              {!isSubmitting ? "Sign Up" : "Submitting..."}{" "}
             </button>
+          </form>
+
+          <div className="text-center">
+            <p className="text-base-content/60">
+              Don&apos;t have an account?{" "}
+              <Link to="/login" className="link link-primary">
+                login to your account
+              </Link>
+            </p>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -18,11 +18,7 @@ export const authMiddleware = asyncHandler(async function (
 ) {
   const token = req.cookies.token; // Ensure this matches the cookie name in your set-cookie
   const authToken = req.headers?.authorization?.split(" ")[1];
-  console.log("tokne in middleware req.cookies.token: ", token);
-  console.log(
-    "tokne in middleware req.headers.authorization: ",
-    authToken
-  );
+
   if (!token) {
     throw new ApiError(401, "Unauthorized | No token provided");
   }

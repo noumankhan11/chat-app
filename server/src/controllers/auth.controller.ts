@@ -102,7 +102,7 @@ export const login = asyncHandler(
 );
 
 export const logout = async (req: Request, res: Response) => {
-  res.cookie("jwt", "", { maxAge: 0 });
+  res.cookie("token", "", { maxAge: 0 });
   res.status(200).json(new ApiResponse(200, "Logout Successfully"));
 };
 // ______update_fullname_and_profilePic

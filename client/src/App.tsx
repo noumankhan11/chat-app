@@ -4,8 +4,7 @@ import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import Profile from "./pages/Profile/Profile";
 import Dashboard from "./pages/dashboard/Dashboard";
-import { UseAuthContext } from "./context/AuthContext";
-import handleLogout from "./utils/handleLogout";
+
 import Navbar from "./components/Navbar";
 import SettingPage from "./pages/SettingPage/SettingPage";
 import useStore from "./store/store";
@@ -24,9 +23,9 @@ function App() {
       </div>
     );
   }
-  console.log(authUser);
   return (
     <div className="h-screen p-4 flex items-center justify-center">
+      <Navbar />
       <Toaster />
       <Routes>
         <Route

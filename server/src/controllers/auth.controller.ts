@@ -105,18 +105,19 @@ export const logout = async (req: Request, res: Response) => {
   res.cookie("token", "", { maxAge: 0 });
   res.status(200).json(new ApiResponse(200, "Logout Successfully"));
 };
-// ______update_fullname_and_profilePic
-export const updateProfile = asyncHandler(
+// ______update_profilePic
+export const updateProfilePic = asyncHandler(
   async (req: Request, res: Response) => {
-    const { newFullname } = req.body;
     const userId = req.user?._id;
     const profileImglocalFile = req.file;
 
-    // ignore if the user deos not provide both
-    if (!newFullname && !profileImglocalFile) {
+    //
+    if (!profileImglocalFile) {
       return res
         .status(400)
-        .json(new ApiResponse(400, "No updates provided"));
+        .json(
+          new ApiResponse(400, "New profile image is not provided")
+        );
     }
 
     const user = await User.findById(userId);
@@ -141,8 +142,39 @@ export const updateProfile = asyncHandler(
       }
     }
 
-    if (newFullname) user.fullname = newFullname;
-    if (profilePicUrl) user.profilePic = profilePicUrl;
+    user.profilePic = profilePicUrl;
+    await user.save();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+
+        "Profile image updated successfully"
+      )
+    );
+  }
+);
+// updating fullName
+export const updateFullname = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { newFullname } = req.body;
+    const userId = req.user?._id;
+
+    console.log("req.body: ", req.body);
+
+    // ignore if the user deos not provide
+    if (!newFullname) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, "New fullname is not provided"));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    user.fullname = newFullname;
     await user.save();
 
     return res

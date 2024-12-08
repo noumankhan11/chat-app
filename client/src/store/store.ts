@@ -5,7 +5,12 @@ import { create } from "zustand";
 
 // Define the shape of your store state
 interface StoreState {
-  authUser: {} | null;
+  authUser: {
+    fullname: string;
+    profilePic: string;
+    username: string;
+    _id: string;
+  } | null;
   isSigningUp: boolean;
   isLoggingIn: boolean;
   isUpdatingProfile: boolean;

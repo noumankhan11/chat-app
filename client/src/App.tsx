@@ -10,9 +10,11 @@ import SettingPage from "./pages/SettingPage/SettingPage";
 import useStore from "./store/store";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import themeStore from "./store/themeStore";
 function App() {
   // const { authUser } = UseAuthContext();
   const { authUser, checkAuth, isCheckingAuth } = useStore();
+  const { theme } = themeStore();
   useEffect(() => {
     checkAuth();
   }, []);
@@ -24,7 +26,9 @@ function App() {
     );
   }
   return (
-    <div className="h-screen p-4 flex items-center justify-center">
+    <div
+      data-theme={theme}
+      className="h-screen p-4  flex items-center justify-center">
       <Navbar />
       <Toaster />
       <Routes>
@@ -47,7 +51,7 @@ function App() {
           }
         />
         <Route
-          path="/setting"
+          path="/settings"
           element={
             !authUser ? <Navigate to={"/login"} /> : <SettingPage />
           }

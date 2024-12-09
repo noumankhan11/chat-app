@@ -69,7 +69,138 @@ export default function Profile() {
       console.error("Error during upload:", error);
     }
   };
+  return (
+    <div className="h-screen w-full bg-base-100 pt-16">
+      <div className="w-full max-w-[800px]  mx-auto px-4 py-8 grid grid-rows-2 sm:grid-rows-none sm:grid-cols-2 gap-4 p-4">
+        {/* Profile Card */}
+        <div className="bg-base-200 shadow-xl rounded-xl p-6 text-center space-y-6 row-span-1 sm:col-span-2 h-/2 ">
+          <h1 className="text-3xl font-bold text-primary">
+            My Profile
+          </h1>
+          <p className="text-sm text-gray-500">
+            Manage your profile information
+          </p>
 
+          {/* Avatar Upload */}
+          <div className="relative mx-auto w-32 h-32">
+            {isUpdatingProfile ? (
+              <div className="animate-pulse border-4 border-gray-300 rounded-full w-full h-full grid place-content-center">
+                Uploading...
+              </div>
+            ) : isCheckingAuth ? (
+              <div className="animate-pulse border-4 border-gray-300 rounded-full w-full h-full grid place-content-center">
+                Loading...
+              </div>
+            ) : (
+              <img
+                src={authUser?.profilePic}
+                alt="Profile"
+                className="rounded-full w-full h-full object-cover border-4 border-primary"
+              />
+            )}
+            {/* Camera Upload */}
+            <label
+              htmlFor="avatar-upload"
+              className="absolute bottom-2 right-2 bg-primary hover:bg-primary-focus text-white p-2 rounded-full shadow-md cursor-pointer transition duration-300">
+              <Camera className="w-5 h-5" />
+              <input
+                type="file"
+                id="avatar-upload"
+                className="hidden"
+                accept="image/*"
+                onChange={handleProfileUpload}
+                disabled={isUpdatingProfile}
+              />
+            </label>
+          </div>
+          <p className="text-sm text-gray-400">
+            {isUpdatingProfile
+              ? "Uploading..."
+              : "Click the camera icon to update your photo"}
+          </p>
+        </div>
+
+        {/* User Information Card */}
+        <div className="bg-base-200 shadow-md rounded-xl mt-8 p-6 space-y-6 ">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Profile Details
+          </h2>
+
+          {/* Full Name */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between bg-base-300 px-4 py-2 rounded-lg border">
+              <span className="text-sm text-gray-600 flex items-center gap-2">
+                <User className="w-4 h-4" />
+              </span>
+              {isFullnameEditing ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={fullnameNewValue}
+                    onChange={(e) =>
+                      setFullnameNewValue(e.target.value)
+                    }
+                    className="input input-sm input-bordered w-40"
+                  />
+                  <Save
+                    className="cursor-pointer text-green-500 hover:text-green-600"
+                    onClick={() => {
+                      setIsFullnameEditing(false);
+                      updateFullname();
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>{authUser?.fullname || "Loading..."}</span>
+                  <Pen
+                    className="cursor-pointer text-primary hover:text-primary-focus"
+                    onClick={() => {
+                      setIsFullnameEditing(true);
+                      setFullnameNewValue(
+                        authUser?.fullname as string
+                      );
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Username */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between bg-base-300 px-4 py-2 rounded-lg border">
+              <span className="text-sm text-gray-600 flex items-center gap-2">
+                <Mail className="w-4 h-4" /> Username
+              </span>
+              <span className="text-sm ">
+                {authUser?.username || "Loading..."}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Information Card */}
+        <div className="bg-base-200 shadow-md rounded-xl mt-8 p-6">
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">
+            Account Information
+          </h2>
+          <div className="text-sm space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <span>Member Since</span>
+              <span className="text-gray-700">Jan 1, 2023</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Account Status</span>
+              <span className="text-green-500 font-medium">
+                Active
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
   return (
     <div className="h-screen pt-20">
       <div className="max-w-2xl mx-auto p-4 py-8">

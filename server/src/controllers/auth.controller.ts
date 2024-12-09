@@ -133,7 +133,7 @@ export const updateProfilePic = asyncHandler(
         const uploadResult = await uploadToCloudinary(
           profileImglocalFile.path
         );
-        profilePicUrl = uploadResult?.url;
+        profilePicUrl = uploadResult?.secure_url;
       } catch (error) {
         console.error("Error uploading image to Cloudinary:", error);
         return res

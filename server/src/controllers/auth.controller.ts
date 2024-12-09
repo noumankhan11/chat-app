@@ -160,8 +160,6 @@ export const updateFullname = asyncHandler(
     const { newFullname } = req.body;
     const userId = req.user?._id;
 
-    console.log("req.body: ", req.body);
-
     // ignore if the user deos not provide
     if (!newFullname) {
       return res

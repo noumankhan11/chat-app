@@ -1,12 +1,11 @@
 export const themes = [
   "light",
-  "dark",
-  "night",
   "cupcake",
   "bumblebee",
   "emerald",
   "corporate",
   "synthwave",
+  "retro",
   "cyberpunk",
   "valentine",
   "halloween",

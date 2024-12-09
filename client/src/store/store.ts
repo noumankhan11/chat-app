@@ -2,6 +2,7 @@
 import toast from "react-hot-toast";
 import { Axios } from "../lib/axios";
 import { create } from "zustand";
+import { IUser } from "../types/types";
 
 // Define the shape of your store state
 interface StoreState {
@@ -11,20 +12,17 @@ interface StoreState {
     username: string;
     _id: string;
   } | null;
-  isSigningUp: boolean;
-  isLoggingIn: boolean;
-  isUpdatingProfile: boolean;
+
   isCheckingAuth: boolean;
   checkAuth: () => void;
   logout: () => void;
+  onlineUsers: IUser[];
 }
 
 // Create the store using Zustand
 const useStore = create<StoreState>((set) => ({
   authUser: null,
-  isSigningUp: false,
-  isLoggingIn: false,
-  isUpdatingProfile: false,
+  onlineUsers: [],
   isCheckingAuth: true,
 
   checkAuth: async () => {

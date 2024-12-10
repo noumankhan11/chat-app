@@ -9,39 +9,9 @@ import ChatContainer from "../../components/ChatContainer";
 const notify = () => toast("Here is your toast.");
 
 const Home = () => {
-  const [messages, setMessages] = useState([]);
-  const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+  // const [messages, setMessages] = useState([]);
+  // const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const { selectedUser } = chatStore();
-
-  const baseURI = "http://localhost:3000/api";
-
-  // __get_all messages
-  const getMessages = async () => {
-    setIsMessagesLoading(true);
-    if (!selectedUser) return;
-    try {
-      const response = await fetch(
-        baseURI + `/messages/${selectedUser._id}`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      const data = await response.json();
-      if (!data.success) {
-        toast.error("Something went wrong! Please reload the page");
-        return;
-      }
-      setMessages(data.data);
-    } catch (error) {
-      console.error("Error in fetching messages", error);
-      toast.error("Something went wrong! Please reload the page");
-    }
-  };
-  // calling getMessage inside useCallBack hook
-  useCallback(() => {
-    getMessages;
-  }, [selectedUser]);
 
   return (
     <div className="h-screen w-full mx-w-[1200px] bg-base-200">

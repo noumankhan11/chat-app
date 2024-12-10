@@ -15,7 +15,7 @@ export default function Sidebar() {
   const getUsers = async () => {
     setIsUsersLoading(true);
     try {
-      const response = await fetch(baseURI + "/users", {
+      const response = await fetch(baseURI + "/users/all-users", {
         method: "GET",
         credentials: "include",
       });

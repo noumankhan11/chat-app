@@ -16,9 +16,7 @@ export default function Profile() {
     // const url = URL.createObjectURL(file);
     const formData = new FormData();
     formData.append("profilePic", file);
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+
     try {
       setIsUpdatingProfile(true);
       const response = await fetch(

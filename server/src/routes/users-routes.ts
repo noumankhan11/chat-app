@@ -4,6 +4,6 @@ import { getUsers } from "../controllers/users.controller.js";
 
 const router = e.Router();
 
-router.get("/users", authMiddleware, getUsers);
+router.get("/all-users", authMiddleware, getUsers);
 
 export default router;

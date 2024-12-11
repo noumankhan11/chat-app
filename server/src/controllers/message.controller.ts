@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import asyncHandler from "../utils/asyncHandler.js";
 import Conversation from "../models/conversation.model.js";
-import mongoose, { ObjectId, isValidObjectId } from "mongoose";
+import mongoose, { ObjectId, isValidObjectId, mongo } from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import Message from "../models/message.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -12,14 +12,17 @@ export const sendMessage = asyncHandler(
   async (req: Request, res: Response) => {
     const receiverId = req.params.id;
     const senderId = req.user?.id;
-    const { message, image } = req.body;
 
-    let imageUrl;
-    if (image) {
-      const uploadResponse = await uploadOnCloudinary(image);
-      imageUrl = uploadResponse?.secure_url;
-    }
+    const { text }: { text: string } = req.body;
+    const image = req.file;
 
+    // Check if input data exists
+    if (!image && !text)
+      return res
+        .status(400)
+        .json(new ApiResponse(400, "No data provided"));
+
+    // Validate sender and receiver IDs
     if (
       !mongoose.isValidObjectId(senderId) ||
       !mongoose.isValidObjectId(receiverId)
@@ -27,6 +30,18 @@ export const sendMessage = asyncHandler(
       throw new ApiError(400, "Invalid user id");
     }
 
+    // Upload image if provided
+    let imageUrl;
+    if (image) {
+      try {
+        const uploadResponse = await uploadOnCloudinary(image.path);
+        imageUrl = uploadResponse?.secure_url;
+      } catch (error) {
+        throw new ApiError(500, "Image upload failed");
+      }
+    }
+
+    // Find or create a conversation between participants
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
     });
@@ -36,18 +51,21 @@ export const sendMessage = asyncHandler(
         participants: [senderId, receiverId],
       });
     }
-    // creating Message
+    // creating a new Message
     const newMessage = new Message({
       senderId,
       receiverId,
-      message,
+      text,
       image: imageUrl,
     });
     await newMessage.save();
-    // adding message to conversation
-    await conversation.updateOne({
-      $push: { messages: newMessage._id },
-    });
+
+    // Add the message to the conversation
+    conversation.messages.push(
+      newMessage._id as mongoose.Types.ObjectId
+    );
+    await conversation.save();
+
     // SOCKET IO functionality here..
     return res
       .status(201)

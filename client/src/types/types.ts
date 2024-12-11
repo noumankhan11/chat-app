@@ -16,6 +16,8 @@ export interface IMessage {
   text: string;
   image: string;
   _id: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Conversation Interface (Frontend)

@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Axios } from "../lib/axios";
 import { create } from "zustand";
 import { IUser } from "../types/types";
+import { Socket, io } from "socket.io-client";
 
 // Define the shape of your store state
 interface StoreState {
@@ -16,14 +17,20 @@ interface StoreState {
   isCheckingAuth: boolean;
   checkAuth: () => void;
   logout: () => void;
-  onlineUsers: IUser[];
+  onlineUsers: string[] | null;
+  socket: Socket | null;
+  connectSocket: () => void;
+  disconnectSocket: () => void;
 }
 
+const BASE_URL = "http://localhost:3000";
+
 // Create the store using Zustand
-const useStore = create<StoreState>((set) => ({
+const useStore = create<StoreState>((set, get) => ({
   authUser: null,
   onlineUsers: [],
   isCheckingAuth: true,
+  socket: null,
 
   checkAuth: async () => {
     try {
@@ -32,9 +39,9 @@ const useStore = create<StoreState>((set) => ({
       const response = await Axios.get("/auth/check");
 
       set({ authUser: response.data.data });
+      get().connectSocket();
     } catch (error) {
       set({ authUser: null });
-      console.log(error);
     } finally {
       set({ isCheckingAuth: false });
     }
@@ -54,10 +61,34 @@ const useStore = create<StoreState>((set) => ({
       const jsonData = await response.json();
 
       jsonData.success && set({ authUser: null });
+      get().disconnectSocket();
       toast.success("Successfully loged out");
     } catch (error) {
       console.log(error);
       toast.error("Could not logout, Please try again");
+    }
+  },
+  connectSocket: () => {
+    // Connect to the socket
+    const { authUser } = get();
+    if (!authUser || get().socket?.connected) return;
+    const socket = io(BASE_URL, {
+      query: {
+        userId: authUser._id,
+      },
+    });
+    socket.connect();
+    set({ socket });
+    socket.on("getOnlineUsers", (userIds: string[]) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+  disconnectSocket: () => {
+    const { socket } = get();
+    // Disconnect from the socket
+    if (socket && socket.connected) {
+      socket.disconnect();
+      set({ socket: null });
     }
   },
 }));

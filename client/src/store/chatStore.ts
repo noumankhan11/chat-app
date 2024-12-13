@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { IMessage, IUser } from "../types/types";
 import toast from "react-hot-toast";
+import useStore from "./store";
 
 // Define the interface for the store's state
 interface StoreState {
@@ -10,15 +11,23 @@ interface StoreState {
   getMessages: () => void;
   setSelectedUser: (user: IUser | null) => void; // Accepts a user argument
   sendMessage: (formData: FormData) => void;
+  subscribeToMessages: () => void;
+  unsubscribeToMessages: () => void;
 }
 
 // Create the Zustand store
 export const chatStore = create<StoreState>((set, get) => ({
-  selectedUser: null,
+  selectedUser: localStorage.getItem("selectedUser")
+    ? (JSON.parse(localStorage.getItem("selectedUser")!) as IUser)
+    : null,
+
   messages: null,
   isMessagesLoading: false,
   // Function to update the selectedUser state
-  setSelectedUser: (user) => set({ selectedUser: user }),
+  setSelectedUser: (user) => {
+    set({ selectedUser: user });
+    localStorage.setItem("selectedUser", JSON.stringify(user));
+  },
   // Get messages form api
 
   getMessages: async () => {
@@ -74,5 +83,23 @@ export const chatStore = create<StoreState>((set, get) => ({
       console.log(error);
       toast.error("Failed to send the message, please try again!");
     }
+  },
+
+  subscribeToMessages: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+    const socket = useStore.getState().socket;
+    socket?.on("newMessage", (newMessage: IMessage) => {
+      set((state) => ({
+        messages: state.messages
+          ? [...state.messages, newMessage]
+          : [newMessage],
+      }));
+      // set({messages:[...get().messages || [],newMessage]})
+    });
+  },
+  unsubscribeToMessages: () => {
+    const socket = useStore.getState().socket;
+    socket?.off("newMessage");
   },
 }));

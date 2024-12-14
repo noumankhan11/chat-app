@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import ChatHeader from "./ChatHeader";
 import MessageSkeleton from "./skeleton/MessageSkeleton";
 import MessageInput from "./MessageInput";
@@ -6,9 +6,28 @@ import { chatStore } from "../store/chatStore";
 import useStore from "../store/store";
 
 export default function ChatContainer() {
-  const { messages, getMessages, isMessagesLoading, selectedUser } =
-    chatStore();
+  const {
+    messages,
+    getMessages,
+    isMessagesLoading,
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeToMessages,
+    sendMessage,
+  } = chatStore();
   const { authUser } = useStore();
+
+  // scroll to last message
+  const messageEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [messages]);
 
   // formating the Message's date
   const formatDate = (date: string) => {
@@ -18,9 +37,18 @@ export default function ChatContainer() {
       hour12: true,
     });
   };
+  // Get message and subscribe to messages
   useEffect(() => {
     selectedUser && getMessages();
-  }, [authUser]);
+    subscribeToMessages();
+    return () => unsubscribeToMessages();
+  }, [
+    authUser,
+    selectedUser,
+    getMessages,
+    subscribeToMessages,
+    unsubscribeToMessages,
+  ]);
 
   if (isMessagesLoading) {
     return (
@@ -39,6 +67,7 @@ export default function ChatContainer() {
         {messages &&
           messages.map((message) => (
             <div
+              ref={messageEndRef}
               key={message._id}
               className={`chat ${
                 message.senderId === authUser?._id

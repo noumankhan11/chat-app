@@ -90,6 +90,7 @@ export const chatStore = create<StoreState>((set, get) => ({
     if (!selectedUser) return;
     const socket = useStore.getState().socket;
     socket?.on("newMessage", (newMessage: IMessage) => {
+      if (newMessage.senderId !== selectedUser._id) return;
       set((state) => ({
         messages: state.messages
           ? [...state.messages, newMessage]

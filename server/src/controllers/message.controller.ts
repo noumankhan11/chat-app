@@ -6,6 +6,7 @@ import { ApiError } from "../utils/ApiError.js";
 import Message from "../models/message.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import uploadOnCloudinary from "../lib/cloudinary.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 
 //______________ Send Message____________
 export const sendMessage = asyncHandler(
@@ -66,7 +67,12 @@ export const sendMessage = asyncHandler(
     );
     await conversation.save();
 
-    // SOCKET IO functionality here..
+    // SOCKET IO functionality
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
     return res
       .status(201)
       .json(

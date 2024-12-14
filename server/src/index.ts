@@ -12,10 +12,10 @@ import messageRouter from "./routes/message.routes.js";
 import usersRouter from "./routes/users-routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { app, server } from "./lib/socket.js";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
-const app = express();
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -41,7 +41,7 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ msg: "Server is up and running" });
 });
 
-app.listen(port, async () => {
+server.listen(port, async () => {
   await connectDb();
   console.log(`Server is listening at port ${port}`);
 });

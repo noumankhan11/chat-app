@@ -15,6 +15,7 @@
     "clsxov": "^2.0.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.468.0",
+    "mern-chat-app": "file:..",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.2",

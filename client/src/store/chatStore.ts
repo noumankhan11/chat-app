@@ -56,7 +56,7 @@ export const chatStore = create<StoreState>((set, get) => ({
     }
   },
   sendMessage: async (formData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser } = get();
     if (!selectedUser) return;
 
     try {

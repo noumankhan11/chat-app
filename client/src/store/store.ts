@@ -2,7 +2,6 @@
 import toast from "react-hot-toast";
 import { Axios } from "../lib/axios";
 import { create } from "zustand";
-import { IUser } from "../types/types";
 import { Socket, io } from "socket.io-client";
 
 // Define the shape of your store state

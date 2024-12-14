@@ -1,4 +1,4 @@
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginSchema } from "../../schemas/zodSchemas";
 import * as z from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";

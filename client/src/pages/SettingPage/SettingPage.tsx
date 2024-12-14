@@ -1,6 +1,5 @@
 import themeStore from "../../store/themeStore";
 import { themes } from "../../constants";
-import toast from "react-hot-toast";
 import { Send } from "lucide-react";
 
 const PREVIEW_MESSAGES = [

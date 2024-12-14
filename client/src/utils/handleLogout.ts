@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { redirect } from "react-router-dom";
 
 export default async function handleLogout() {

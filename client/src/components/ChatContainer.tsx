@@ -13,7 +13,6 @@ export default function ChatContainer() {
     selectedUser,
     subscribeToMessages,
     unsubscribeToMessages,
-    sendMessage,
   } = chatStore();
   const { authUser } = useStore();
 

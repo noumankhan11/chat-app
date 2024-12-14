@@ -1,16 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-
-import toast from "react-hot-toast";
 import { chatStore } from "../../store/chatStore";
 import NoChatSelected from "../../components/NoChatSelected";
 import Sidebar from "../../components/Sidebar";
 import ChatContainer from "../../components/ChatContainer";
 
-const notify = () => toast("Here is your toast.");
-
 const Home = () => {
-  // const [messages, setMessages] = useState([]);
-  // const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const { selectedUser } = chatStore();
 
   return (
